@@ -122,6 +122,31 @@ svg.map text{pointer-events:none;text-anchor:middle;fill:var(--map-ink);font-fam
 .lg .ct{color:var(--muted);font-size:.82rem;font-variant-numeric:tabular-nums;white-space:nowrap}
 .lg .ct.some{color:var(--visited);font-weight:600}
 .lg .ct.noted::after{content:" ✎";color:var(--muted);font-weight:400}
+/* opening splash: sign in, or say hello and step aside */
+.splash{position:fixed;inset:0;z-index:50;display:grid;place-items:center;overflow-y:auto;background:var(--bg);
+  padding:max(24px,env(safe-area-inset-top,0px)) max(20px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(20px,env(safe-area-inset-left,0px));
+  transition:opacity .35s ease,visibility .35s}
+.splash.out{opacity:0;visibility:hidden}
+html.splashing body{overflow:hidden}
+.sp-inner{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center}
+.sp-icon{width:88px;height:88px;border-radius:20px;border:1px solid var(--line)}
+.sp-title{font-family:var(--display);font-weight:700;font-size:1.75rem;line-height:1.2;margin-top:10px}
+.sp-sub{color:var(--muted);letter-spacing:.16em;text-transform:uppercase;font-size:.72rem}
+.sp-body{width:100%;margin-top:22px;display:flex;flex-direction:column;align-items:stretch;gap:8px;min-height:7rem}
+.sp-wait{color:var(--muted);animation:sp-in .4s ease .7s both}
+.sp-note{color:var(--muted)}
+.sp-hello{font-family:var(--display);font-weight:700;font-size:2.1rem;line-height:1.2;animation:sp-in .5s ease both}
+@keyframes sp-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.sp-form{display:flex;flex-direction:column;gap:10px;text-align:left}
+.sp-h{font-weight:600;font-size:1.02rem}
+.sp-form input{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+.sp-go{height:46px;border:0;border-radius:6px;background:var(--fg);color:var(--bg);font-weight:600;cursor:pointer}
+.sp-go:disabled{opacity:.6;cursor:default}
+:is(.sp-form input,.sp-go):focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.sp-msg{font-size:.88rem;color:var(--muted)} .sp-msg.err{color:var(--warn)}
+.sp-links{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px}
+.sp-skip{align-self:center;color:var(--muted);margin-top:6px}
+@media (prefers-reduced-motion:reduce){.splash{transition:none}.sp-hello,.sp-wait{animation:none}}
 footer{color:var(--muted);font-size:.83rem;max-width:80ch}
 footer a{color:var(--accent)}
 @media (max-width:900px){
@@ -131,6 +156,14 @@ footer a{color:var(--accent)}
   .lg .en{display:none}
 }
 </style>
+<div class="splash" id="splash" role="dialog" aria-modal="true" aria-labelledby="sp-title">
+  <div class="sp-inner">
+    <img class="sp-icon" src="icon-192.png" alt="" width="88" height="88">
+    <h1 class="sp-title" id="sp-title">서울 법정동 지도</h1>
+    <p class="sp-sub">Seoul Dong Map</p>
+    <div class="sp-body" id="sp-body"><p class="sp-wait">Loading…</p></div>
+  </div>
+</div>
 <div class="wrap">
   <div class="top">
     <h1>서울 법정동 지도</h1>
@@ -598,6 +631,20 @@ footer a{color:var(--accent)}
   };
   window.addEventListener('resize',apply);
   apply(); refresh(); card(); boot();
+})();
+</script>
+<script>
+/* Splash controller. sync.js decides what the splash shows; if sync never loads, it steps aside. */
+(function(){
+  var sp=document.getElementById('splash'), wrap=document.querySelector('.wrap'), root=document.documentElement, t=0;
+  function show(){clearTimeout(t);sp.hidden=false;void sp.offsetWidth;sp.classList.remove('out');root.classList.add('splashing');wrap.inert=true}
+  function hide(){
+    if(sp.hidden)return; sp.classList.add('out'); root.classList.remove('splashing'); wrap.inert=false;
+    clearTimeout(t); t=setTimeout(function(){sp.hidden=true},400);
+  }
+  window.SeoulSplash={show:show,hide:hide,body:document.getElementById('sp-body')};
+  show();
+  setTimeout(function(){if(!window.SeoulSync)hide()},8000);
 })();
 </script>
 </body></html>

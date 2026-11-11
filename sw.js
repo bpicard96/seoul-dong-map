@@ -1,4 +1,4 @@
-const CACHE='seoul-map-v2';
+const CACHE='seoul-map-v3';
 const SHELL=['./','index.html','sync.js','firebase-config.js','manifest.webmanifest','icon-192.png','icon-512.png','icon-180.png'];
 const OK_HOSTS=['www.gstatic.com','fonts.googleapis.com','fonts.gstatic.com'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).then(()=>self.skipWaiting()))});
