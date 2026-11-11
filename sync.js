@@ -58,13 +58,16 @@ async function start() {
   const [{ initializeApp }, A, F] = await Promise.all([
     import(SDK + 'firebase-app.js'), import(SDK + 'firebase-auth.js'), import(SDK + 'firebase-firestore.js'),
   ]);
-  const app = initializeApp(config);
+  // firestoreDatabase names the Firestore database when it isn't the built-in "(default)" one.
+  const { firestoreDatabase, ...options } = config;
+  const DB = firestoreDatabase || '(default)';
+  const app = initializeApp(options);
   const auth = A.getAuth(app);
   let fs;
   try {
-    fs = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) });
+    fs = F.initializeFirestore(app, { localCache: F.persistentLocalCache({ tabManager: F.persistentMultipleTabManager() }) }, DB);
   } catch (e) {
-    fs = F.getFirestore(app);
+    fs = F.getFirestore(app, DB);
   }
 
   let user = null, unsub = null, formOpen = false;

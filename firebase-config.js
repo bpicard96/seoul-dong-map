@@ -7,4 +7,6 @@ export default {
   storageBucket: "seoul-dong-map.firebasestorage.app",
   messagingSenderId: "674040173955",
   appId: "1:674040173955:web:df5323ec2fcf6e7d7a52b6",
+  // The Firestore database was created with the ID "default" rather than the built-in "(default)".
+  firestoreDatabase: "default",
 };
