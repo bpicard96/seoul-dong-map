@@ -1,0 +1,17 @@
+rules_version = '2';
+// Each signed-in person can read and write only their own marks.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/places/{placeId} {
+      allow read, delete: if request.auth != null && request.auth.uid == uid;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && placeId.matches('^[dg][0-9]{5,10}$')
+        && request.resource.data.keys().hasOnly(['kind', 'visited', 'want', 'worthwhile', 'note', 'places', 'updated', 'name', 'nameEn', 'district'])
+        && request.resource.data.visited is bool
+        && request.resource.data.want is bool
+        && request.resource.data.worthwhile is bool
+        && request.resource.data.note is string && request.resource.data.note.size() <= 4000
+        && request.resource.data.places is list && request.resource.data.places.size() <= 40;
+    }
+  }
+}
